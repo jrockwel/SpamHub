@@ -75,9 +75,7 @@ def main():
 
     centroids = randompick(instances, seed)
 
-    for i in range(len(centroids)-1):
-        genjaccard(centroids[i],centroids[i+1])
-        print('\n\n\n')
+    
 
 
 
