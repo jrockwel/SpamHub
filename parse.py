@@ -31,10 +31,9 @@ class parse:
 
 
     def read(self):
-        # makes a huge list of all of the words
-        # takes every email and makes it into a list of words
+        #makes each instance a dictonary as explained above
         # cleans emails of punctuation and uses same NLP module we used in hw 5 we gunna have to figure out later how to convert them back, or we could just keep
-        # keep the filename with the instance to know which one it actually is in the end (ill do that for now)
+        # the filename with the instance to know which one it actually is in the end (ill do that for now)
 
 
 
