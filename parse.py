@@ -69,44 +69,27 @@ class data:
 
             # using adams stemming thing
             done = StemmingUtil.createStems(rinsed)
-
-            inst = {}
+            #making the actual instance now
+            dic = {}
             # looking at each word
             for word in done:
                 # add it if its not in dictonary
-                if word not in inst.keys():
+                if word not in dic.keys():
                     count = 0
                     # finding how many times its repeated and setting that as the value
                     for i in range(len(done)):
                         if word == done[i]:
                             count += 1
-                    inst[word] = count
+                    dic[word] = count
 
-            print(inst)
+            #instance is tuple of filname and dictionary
+            inst = (filename,dic)
+            totalfiles.append(inst)
+
 
             # dammmnnnn there are a lot of fuckin emails
             per = count1 / totalnum
             print(per)
 
-        writefile = "data.csv"
-        wfile = open(writefile, "w")
-        wfile.write(totalwordd)
-        wfile.write("\n\n\n")
-        wfile.write(totalfiles)
-
-        print("\n", len(totalwords))
-
-        return totalwords, totalfiles
 
 
-
-
-
-
-def main():
-
-    pass
-
-
-
-main()
