@@ -13,7 +13,7 @@ import string
 
 
 
-class data:
+class parse:
 
     def __init__(self):
 
@@ -30,7 +30,7 @@ class data:
 
 
         # gets list of file names
-        files = os.listdir("emails")
+        files = os.listdir("small_emails")
 
         # MY computer is fucked so I had to do this
         if ".DS_Store" in files:
@@ -49,12 +49,12 @@ class data:
         for filename in files:
 
             count1 = count1 + 1
-            file = open('emails/' + filename)
+            file = open('small_emails/' + filename)
             # print(filename)
             dirttext = file.read().split()
             rinsed = []
 
-            # clean that shit!
+            # clean that &*%$#@!
             for i in range(len(dirttext)):
                 dirttext[i] = dirttext[i].lower()
                 dirttext[i] = dirttext[i].translate(translator)
@@ -69,18 +69,43 @@ class data:
 
             # using adams stemming thing
             done = StemmingUtil.createStems(rinsed)
+
+
+            ###There are a lot of emails that are either in their entirety or partly just a long string of captial letters and numbers and crap
+            ###These should probably all go into the same key value pair because they are don't actually mean anything to us, and are a distict type of thing
+            ### in themselves so I try to weed them out first just by saying if any word is longer than 25 charcters throw it all in the same thing
+
+
             #making the actual instance now
             dic = {}
-            # looking at each word
+
+            # checking for crazy ones
+            getrideof=[]
             for word in done:
-                # add it if its not in dictonary
-                if word not in dic.keys():
-                    count = 0
-                    # finding how many times its repeated and setting that as the value
-                    for i in range(len(done)):
-                        if word == done[i]:
-                            count += 1
-                    dic[word] = count
+                dic["large-stuff"] = 0
+                if len(word) > 15:
+                    dic["large-stuff"] += 1
+                    getrideof.append(word)
+
+            ####################################
+
+            # throwing out all the long stuff
+            new = []
+            for word in done:
+                if word not in getrideof:
+                    new.append(word)
+
+            # looking at each word that isn't crazy
+            if len(new) != 0:
+                for word in new:
+                    # add it if its not in dictonary
+                    if word not in dic.keys():
+                        count = 0
+                        # finding how many times its repeated and setting that as the value
+                        for i in range(len(new)):
+                            if word == new[i]:
+                                count += 1
+                        dic[word] = count
 
             #instance is tuple of filname and dictionary
             inst = (filename,dic)
@@ -92,4 +117,4 @@ class data:
             print(per)
 
 
-
+        return totalfiles
