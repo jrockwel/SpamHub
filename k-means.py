@@ -59,10 +59,7 @@ def genjaccard(I1, I2):
 
     distance = 1 - (inter/union)
 
-    print(dic1,'\n',dic2)
-    print("inter: ", inter)
-    print("union: ", union)
-    print("distance",distance)
+    return distance
 
 
 
