@@ -10,7 +10,16 @@ import string
 
 #....yea i tried the first way first and it took for evvvverrr...the second is way faster
 
+class instance:
 
+    def __init__(self,name,dict):
+
+        self.name = name
+        self.words = dict
+
+    def __str__(self):
+
+        return "filename: " +  self.name + "\n" + "words dictionary: " + str(self.words) + "\n\n"
 
 
 class parse:
@@ -108,7 +117,7 @@ class parse:
                         dic[word] = count
 
             #instance is tuple of filname and dictionary
-            inst = (filename,dic)
+            inst = instance(filename, dic)
             totalfiles.append(inst)
 
 
