@@ -72,7 +72,7 @@ def genjaccard(I1, I2):
     for key1 in dic1.keys():
 
         if key1 in dic2.keys():
-            #print('key: ',key1, '   dic1 value: ',dic1[key1],' dic2 value: ',dic2[key1],'     max: ', max(dic1[key1],dic2[key1]) ,'union: ', union)
+    
 
             union = union + max(dic1[key1],dic2[key1])
             inter = inter + min(dic1[key1],dic2[key1])
