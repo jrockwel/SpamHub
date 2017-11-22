@@ -4,7 +4,7 @@ import sys
 
 
 #cluster class where we assign instances to clusters...not completely sure this will necessery but might make it easier
-class clusters:
+class cluster:
 
     def __init__(self,k,centroids):
 
@@ -26,6 +26,12 @@ class clusters:
             string = string + "\n\n\n"
 
         return string
+
+
+    #reassigns a new centroid to cluster so that then we can recalulate cluster
+    def newcentroid(self,mean, oldmean):
+
+        self.clustdic[mean] = self.clustdic.pop(oldmean)
 
 
 # intiates the random instances as the centers of the clusters
@@ -61,8 +67,8 @@ def genjaccard(I1, I2):
     #finding the denominator and numerator
     union = 0
     inter = 0
-    # taking max of attributes that appear in both, and adding all values that are only in d1, Also finding intersection by taking min over attributes that are
-    # in both
+    # taking max of attributes that appear in both, and adding all values that are only in d1, Also finding intersection by taking min over attributes that
+    #  are in both
     for key1 in dic1.keys():
 
         if key1 in dic2.keys():
@@ -100,10 +106,26 @@ def assigncluster(instance,centroids,clusters):
 
     #adding the instance to cluster with smallest distance
 
-
     pair = min(possible, key=lambda x: x[1])
     clusters.clustdic[pair[0]].append(instance)
 
+#reassigns centroid by recalculating mean
+def recalcmean(cluster):
+
+    #new centroid is a dictonary of words with means as values
+    newcentroid = {}
+
+    #adding all words in the cluster to new centroid
+    for instance in cluster:
+        for word, num in instance.words.items():
+            if word not in newcentroid.keys():
+                newcentroid[word] = num
+            else:
+                newcentroid[word] =+ num
+
+    #dividing all values by number of instances
+    for word in newcentroid.keys():
+        newcentroid[word] = newcentroid[word]/len(cluster)
 
 
 
@@ -115,16 +137,16 @@ def main():
     instances = parser.read()
 
     centroids = randompick(instances, seed,10)
-
-    clusterss = clusters(10,centroids)
-
+    clusters = cluster(10,centroids)
 
     for instance in instances:
 
-        assigncluster(instance,centroids,clusterss)
+        assigncluster(instance,centroids,clusters)
 
+    for centroid,cluster in clusters.clustdic.items():
 
-    print(clusterss)
+        newcentroid = recalcmean(cluster)
+        clusters.newcentroid(newcentroid, centroid)
 
 
 
