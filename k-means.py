@@ -32,6 +32,7 @@ class clusters:
     def newcentroid(self,mean, oldmean):
 
         self.clustdic[mean] = self.clustdic.pop(oldmean)
+        self.clustdic[mean] = []
 
 
 ################################################################################################
@@ -97,10 +98,10 @@ def genjaccard(I1, I2):
 
 
 #assigns an instance a cluster based on the smallest distance
-def assigncluster(instance,centroids,clusters):
+def assigncluster(instance,clusters):
 
     possible = []
-
+    centroids = clusters.clustdic.keys()
     #all distances to each centroid
     for center in centroids:
 
@@ -134,6 +135,30 @@ def recalcmean(cluster):
 
     return new
 
+#checks to see if mean has moved if no then we know we are done
+def isStable(oldmeans, newmeans,iteration):
+
+    #looping through the clusters if they are identical then return true
+    #doing this by adding 1 to count if vectors are the same, if all vectors are the same return true
+    if iteration != 0:
+        count = 0
+        total = 0
+        for old in oldmeans:
+            for new in newmeans:
+                for key1, value1 in old.words.items():
+                    for key2, value2 in new.words.items():
+                        total += 1
+                        if key1 == key2:
+                            if value1 == value2:
+                                count += 1
+
+        if count == total:
+            return True
+        return False
+
+    return False
+
+
 def main():
 
     #parsing data
@@ -150,17 +175,32 @@ def main():
 
     # assigns each instance to a cluster
     for instance in instances:
-        assigncluster(instance,centroids,clst)
+        assigncluster(instance,clst)
 
+    #just to start the while loop
+    count = 0
+    oldlist=[]
+    newlist=[]
     ###################all runs after but before stabilized##########################
 
-    for centroid,cluster in clst.clustdic.items():
+    while isStable(oldlist,newlist,count) == False:
 
-        newcentroid = recalcmean(cluster)
-        clst.newcentroid(newcentroid, centroid)
+        for centroid,cluster in clst.clustdic.items():
+
+            oldlist=[]
+            newlist=[]
+            newcentroid = recalcmean(cluster)
+
+            newlist.append(newcentroid)
+            oldlist.append(centroid)
+
+            clst.newcentroid(newcentroid, centroid)
+
+        for instance in instances:
+            assigncluster(instance,clst)
 
 
-    print(clst)
+        print(clst)
 
 
 main()
