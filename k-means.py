@@ -17,10 +17,8 @@ class clusters:
     def __str__(self):
 
         string=""
-        count = 0
         for key, value in self.clustdic.items():
-            count = count + 1
-            string = string + "cluster" + str(count) + "\ncenter instance: \n"+ str(key) + "\ninstances in cluster: \n\n"
+            string = string + "\ncenter instance: \n"+ str(key) + "\ninstances in cluster: \n\n"
             for instance in value:
                 string = string + str(instance.name) + '\n'
             string = string + "\n\n\n"
@@ -28,11 +26,14 @@ class clusters:
         return string
 
 
-    #reassigns a new centroid to cluster so that then we can recalulate cluster
-    def newcentroid(self,mean, oldmean):
+    #reassigns a new centroids to clusters so that then we can recalulate clusters
+    def newiteration(self,newmeans):
 
-        self.clustdic[mean] = self.clustdic.pop(oldmean)
-        self.clustdic[mean] = []
+        self.clustdic = {}
+        for center in newmeans:
+            self.clustdic[center] = []
+
+
 
 
 ################################################################################################
@@ -77,7 +78,6 @@ def genjaccard(I1, I2):
 
         if key1 in dic2.keys():
 
-
             union = union + max(dic1[key1],dic2[key1])
             inter = inter + min(dic1[key1],dic2[key1])
 
@@ -114,7 +114,7 @@ def assigncluster(instance,clusters):
     clusters.clustdic[pair[0]].append(instance)
 
 #reassigns centroid by recalculating mean
-def recalcmean(cluster):
+def recalcmean(cluster,iteration,clustnum):
 
     #new centroid is a dictonary of words with means as values
     newcentroid = {}
@@ -131,7 +131,7 @@ def recalcmean(cluster):
     for word in newcentroid.keys():
         newcentroid[word] = newcentroid[word]/len(cluster)
 
-    new = instance("newmean",newcentroid)
+    new = instance("new, cluster: " + str(clustnum) + " iteration: " + str(iteration) ,newcentroid)
 
     return new
 
@@ -178,29 +178,34 @@ def main():
         assigncluster(instance,clst)
 
     #just to start the while loop
-    count = 0
     oldlist=[]
     newlist=[]
-    ###################all runs after but before stabilized##########################
 
-    while isStable(oldlist,newlist,count) == False:
+    ###################all runs after but before stabilized##########################
+    iteration = 0
+    while isStable(oldlist,newlist,iteration) == False:
+
+        oldlist = []
+        newlist = []
+        iteration += 1
+        clustnum = 0
 
         for centroid,cluster in clst.clustdic.items():
+            clustnum += 1
 
-            oldlist=[]
-            newlist=[]
-            newcentroid = recalcmean(cluster)
+            newcentroid = recalcmean(cluster,iteration,clustnum)
 
             newlist.append(newcentroid)
             oldlist.append(centroid)
 
-            clst.newcentroid(newcentroid, centroid)
+        clst.newiteration(newlist)
 
         for instance in instances:
             assigncluster(instance,clst)
 
-
         print(clst)
+
+    print(clst)
 
 
 main()
