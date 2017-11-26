@@ -3,35 +3,41 @@ import random
 import sys
 
 
-#cluster class where we assign instances to clusters...not completely sure this will necessery but might make it easier
-class clusters:
+#cluster class where we assign instances to clusters, and start new iterations...not completely sure this will necessery but might make it easier
 
-    def __init__(self,k,centroids):
+class clst:
 
-        self.k = k
+    def __init__(self,clusternumber,centroid):
 
-        self.clustdic = {}
-        for center in centroids:
-            self.clustdic[center] = []
+
+        self.iteration = 0
+        self.clustnum = clusternumber
+        self.centroid = centroid
+        self.instances = []
 
     def __str__(self):
 
-        string=""
-        for key, value in self.clustdic.items():
-            string = string + "\ncenter instance: \n"+ str(key) + "\ninstances in cluster: \n\n"
-            for instance in value:
-                string = string + str(instance.name) + '\n'
-            string = string + "\n\n\n"
+        string = ""
+        string = string +"\ncluster number: "+str(self.clustnum)+'\niteration: '+str(self.iteration) + "\ncentroid:\n" + str(self.centroid) + "\ncontains:\n\n"
+        for instance in self.instances:
+            string = string + '\n' + instance.name
+
+        string = string + "\n\n\n"
 
         return string
 
 
-    #reassigns a new centroids to clusters so that then we can recalulate clusters
-    def newiteration(self,newmeans):
 
-        self.clustdic = {}
-        for center in newmeans:
-            self.clustdic[center] = []
+    def addinstance(self,instance):
+
+        self.instances.append(instance)
+
+
+    def newiteration(self,newcentroid):
+
+        self.centroid = newcentroid
+        self.instances = []
+        self.iteration += 1
 
 
 
@@ -52,6 +58,7 @@ def randompick(instances, seed,k):
     for i in range (len(instances)):
         for num in randoms:
             if i == num:
+                instances[i].iscent = True
                 centroids.append(instances[i])
 
 
@@ -98,10 +105,9 @@ def genjaccard(I1, I2):
 
 
 #assigns an instance a cluster based on the smallest distance
-def assigncluster(instance,clusters):
+def assigncluster(instance,centroids,clusters):
 
     possible = []
-    centroids = clusters.clustdic.keys()
     #all distances to each centroid
     for center in centroids:
 
@@ -111,16 +117,20 @@ def assigncluster(instance,clusters):
     #adding the instance to cluster with smallest distance
 
     pair = min(possible, key=lambda x: x[1])
-    clusters.clustdic[pair[0]].append(instance)
+
+    for cluster in clusters:
+        if pair[0].name == cluster.centroid.name:
+            cluster.instances.append(instance)
+
 
 #reassigns centroid by recalculating mean
-def recalcmean(cluster,iteration,clustnum):
+def recalcmean(cluster):
 
     #new centroid is a dictonary of words with means as values
     newcentroid = {}
 
     #adding all words in the cluster to new centroid
-    for inst in cluster:
+    for inst in cluster.instances:
         for word, num in inst.words.items():
             if word not in newcentroid.keys():
                 newcentroid[word] = num
@@ -129,28 +139,34 @@ def recalcmean(cluster,iteration,clustnum):
 
     #dividing all values by number of instances
     for word in newcentroid.keys():
-        newcentroid[word] = newcentroid[word]/len(cluster)
+        newcentroid[word] = newcentroid[word]/len(cluster.instances)
 
-    new = instance("new, cluster: " + str(clustnum) + " iteration: " + str(iteration) ,newcentroid)
+    new = instance('mean centroid',newcentroid,True)
 
     return new
 
 #checks to see if mean has moved if no then we know we are done
-def isStable(oldmeans, newmeans,iteration):
+def isStable(newmeans, oldmeans,iteration):
 
     #looping through the clusters if they are identical then return true
     #doing this by adding 1 to count if vectors are the same, if all vectors are the same return true
     if iteration != 0:
         count = 0
         total = 0
-        for old in oldmeans:
-            for new in newmeans:
-                for key1, value1 in old.words.items():
-                    for key2, value2 in new.words.items():
-                        total += 1
-                        if key1 == key2:
-                            if value1 == value2:
-                                count += 1
+        #taking a single centroid
+        for i in range(len(oldmeans)):
+            # single word, and count in old version
+            for oldword, oldcount in oldmeans[i].words.items():
+                #getting total length of centroid
+                total += 1
+                #finding oldword in new dic if it exists
+                if oldword in newmeans[i].words.keys():
+                    # if values are within a little range then add one to count
+                    newvalue = newmeans[i].words[oldword]
+                    distance = abs(oldcount - newvalue)
+                    if distance < .001:
+                        count += 1
+
 
         if count == total:
             return True
@@ -165,47 +181,49 @@ def main():
     seed = sys.argv[1]
     parser = parse()
     instances = parser.read()
-
+    k = 3
 
     ##############initial run #####################
     #randomly sets centroids, and makes the clusters object which will be changed on ever iteration of recalculating the means
-    centroids = randompick(instances, seed,10)
+    centroids = randompick(instances, seed,k)
 
-    clst = clusters(10,centroids)
+    #making the clusters in a list
+    clusters = []
+    for i in range(len(centroids)):
+        clusters.append(clst(i,centroids[i]))
 
     # assigns each instance to a cluster
     for instance in instances:
-        assigncluster(instance,clst)
+        assigncluster(instance,centroids,clusters)
+
+    newcentroids = []
+    oldcentroids = []
+
+    #for cluster in clusters:
+        #print(cluster)
 
     #just to start the while loop
-    oldlist=[]
-    newlist=[]
 
     ###################all runs after but before stabilized##########################
-    iteration = 0
-    while isStable(oldlist,newlist,iteration) == False:
 
-        oldlist = []
-        newlist = []
-        iteration += 1
-        clustnum = 0
+    while isStable(newcentroids,oldcentroids,clusters[0].iteration) != True:
 
-        for centroid,cluster in clst.clustdic.items():
-            clustnum += 1
+        newcentroids=[]
+        oldcentroids =[]
+        for cluster in clusters:
+            oldcentroids.append(cluster.centroid)
+            new = recalcmean(cluster)
+            newcentroids.append(new)
+            cluster.newiteration(new)
 
-            newcentroid = recalcmean(cluster,iteration,clustnum)
-
-            newlist.append(newcentroid)
-            oldlist.append(centroid)
-
-        clst.newiteration(newlist)
 
         for instance in instances:
-            assigncluster(instance,clst)
+            assigncluster(instance,newcentroids,clusters)
 
-        print(clst)
+        #for cluster in clusters:
+            #print(cluster)
 
-    print(clst)
+
 
 
 main()

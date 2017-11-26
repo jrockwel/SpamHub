@@ -12,10 +12,11 @@ import string
 
 class instance:
 
-    def __init__(self,name,dict):
+    def __init__(self,name,dict,iscent):
 
         self.name = name
         self.words = dict
+        self.iscent = iscent
 
     def __str__(self):
 
@@ -116,7 +117,7 @@ class parse:
                         dic[word] = count
 
             #instance is tuple of filname and dictionary
-            inst = instance(filename, dic)
+            inst = instance(filename, dic,False)
             totalfiles.append(inst)
 
 
