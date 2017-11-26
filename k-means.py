@@ -181,9 +181,10 @@ def main():
 
     #parsing data
     seed = sys.argv[1]
+    k = int(sys.argv[2])
     parser = parse()
     instances = parser.read()
-    k = 3
+
 
     ##############initial run #####################
     #randomly sets centroids, and makes the clusters object which will be changed on ever iteration of recalculating the means
@@ -200,6 +201,8 @@ def main():
 
     newcentroids = []
 
+    for cluster in clusters:
+        print(cluster)
 
 
     #just to start the while loop
