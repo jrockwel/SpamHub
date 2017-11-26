@@ -166,7 +166,7 @@ def isStable(newmeans, oldmeans,iteration):
                     # if values are within a little range then add one to count
                     newvalue = newmeans[i].words[oldword]
                     distance = abs(oldcount - newvalue)
-                    if distance < .001:
+                    if distance < .01:
                         count += 1
 
 
@@ -200,27 +200,25 @@ def main():
 
     newcentroids = []
 
-    #for cluster in clusters:
-        #print(cluster)
+
 
     #just to start the while loop
 
     ###################all runs after but before stabilized##########################
-
+    #while we haven't stabelized keep running
     while isStable(newcentroids,oldcentroids,clusters[0].iteration) != True:
 
         oldcentroids = []
         newcentroids=[]
+        #recalculate the mean for each cluster, and re assign that mean as the new centroid
+        #we make the two lists above so we can do the comparsion to see if stable
         for cluster in clusters:
             oldcentroids.append(cluster.centroid)
             new = recalcmean(cluster)
             newcentroids.append(new)
             cluster.newiteration(new)
 
-        #for centroid in newcentroids:
-            #print(centroid)
-
-        #print('\n\n\n')
+        #readd all the instances too the clusters with their new centroids
         for instance in instances:
             assigncluster(instance,newcentroids,clusters)
 
