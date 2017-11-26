@@ -107,6 +107,8 @@ def genjaccard(I1, I2):
 #assigns an instance a cluster based on the smallest distance
 def assigncluster(instance,centroids,clusters):
 
+
+
     possible = []
     #all distances to each centroid
     for center in centroids:
@@ -141,7 +143,7 @@ def recalcmean(cluster):
     for word in newcentroid.keys():
         newcentroid[word] = newcentroid[word]/len(cluster.instances)
 
-    new = instance('mean centroid',newcentroid,True)
+    new = instance('mean centroid ' + str(cluster.clustnum), newcentroid,True)
 
     return new
 
@@ -185,19 +187,18 @@ def main():
 
     ##############initial run #####################
     #randomly sets centroids, and makes the clusters object which will be changed on ever iteration of recalculating the means
-    centroids = randompick(instances, seed,k)
+    oldcentroids = randompick(instances, seed,k)
 
     #making the clusters in a list
     clusters = []
-    for i in range(len(centroids)):
-        clusters.append(clst(i,centroids[i]))
+    for i in range(len(oldcentroids)):
+        clusters.append(clst(i,oldcentroids[i]))
 
     # assigns each instance to a cluster
     for instance in instances:
-        assigncluster(instance,centroids,clusters)
+        assigncluster(instance,oldcentroids,clusters)
 
     newcentroids = []
-    oldcentroids = []
 
     #for cluster in clusters:
         #print(cluster)
@@ -208,20 +209,23 @@ def main():
 
     while isStable(newcentroids,oldcentroids,clusters[0].iteration) != True:
 
+        oldcentroids = []
         newcentroids=[]
-        oldcentroids =[]
         for cluster in clusters:
             oldcentroids.append(cluster.centroid)
             new = recalcmean(cluster)
             newcentroids.append(new)
             cluster.newiteration(new)
 
+        #for centroid in newcentroids:
+            #print(centroid)
 
+        #print('\n\n\n')
         for instance in instances:
             assigncluster(instance,newcentroids,clusters)
 
-        #for cluster in clusters:
-            #print(cluster)
+        for cluster in clusters:
+            print(cluster)
 
 
 
