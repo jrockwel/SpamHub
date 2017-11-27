@@ -1,6 +1,7 @@
 from parse import *
 import random
 import sys
+import os
 
 
 #cluster class where we assign instances to clusters, and start new iterations...not completely sure this will necessery but might make it easier
@@ -153,10 +154,14 @@ def isStable(newmeans, oldmeans,iteration):
     #looping through the clusters if they are identical then return true
     #doing this by adding 1 to count if vectors are the same, if all vectors are the same return true
     if iteration != 0:
-        count = 0
-        total = 0
+        #setting counters for number of centriods with unchanged means
+        numcluster = len(newmeans)
+        check = 0
         #taking a single centroid
         for i in range(len(oldmeans)):
+            #setting counter for unchanged values and words
+            total = 0
+            count = 0
             # single word, and count in old version
             for oldword, oldcount in oldmeans[i].words.items():
                 #getting total length of centroid
@@ -165,16 +170,48 @@ def isStable(newmeans, oldmeans,iteration):
                 if oldword in newmeans[i].words.keys():
                     # if values are within a little range then add one to count
                     newvalue = newmeans[i].words[oldword]
-                    distance = abs(oldcount - newvalue)
-                    if distance < .01:
+                    if newvalue == oldcount:
                         count += 1
+                        #print(total,count)
 
-
-        if count == total:
+            #if nothing has changed in words, and values that centroid is good
+            if count == total:
+                check += 1
+        if check == numcluster:
             return True
-        return False
-
     return False
+
+
+#makes a folder to put cluster documents in
+def makenewclusterfolder(seed, k):
+
+    path ='seed_' +  str(seed) + "_k_" + str(k)
+
+    if os.path.isdir(path):
+        print("Folder already exists!")
+    else:
+        os.makedirs(path)
+
+    return path
+
+# writes cluster documents
+def writeclusterdoc(clusters, folderpath):
+
+    for i in range (len(clusters)):
+        clustnum = clusters[i].clustnum
+        filename = str(folderpath) + '/clusternumber_' + str(clustnum) + ".txt"
+        file = open(filename, 'w')
+        file.write("cluster number: " + str(clustnum) + "\n\n\nFiles in cluster: \n\n\n")
+        for instance in clusters[i].instances:
+            file_to_write = 'small_emails/'+ str(instance.name)
+            towrite = open(file_to_write)
+            string = towrite.read()
+            file.write(string)
+            file.write("\n\n\n\n")
+
+
+
+
 
 
 def main():
@@ -209,17 +246,23 @@ def main():
 
     ###################all runs after but before stabilized##########################
     #while we haven't stabelized keep running
-    while isStable(newcentroids,oldcentroids,clusters[0].iteration) != True:
-
+    while (isStable(newcentroids,oldcentroids,clusters[0].iteration) != True and clusters[0].iteration < 50):
+        print('\n',clusters[0].iteration,'\n')
         oldcentroids = []
         newcentroids=[]
         #recalculate the mean for each cluster, and re assign that mean as the new centroid
         #we make the two lists above so we can do the comparsion to see if stable
         for cluster in clusters:
-            oldcentroids.append(cluster.centroid)
-            new = recalcmean(cluster)
-            newcentroids.append(new)
-            cluster.newiteration(new)
+            #weeding out the case where the centroid is the only thing in the cluster
+            if len(cluster.instances) != 0 :
+                oldcentroids.append(cluster.centroid)
+                new = recalcmean(cluster)
+                newcentroids.append(new)
+                cluster.newiteration(new)
+            # if the centroid is the only thing in the cluster, then keep that cluster and change the others
+            else:
+                cluster.newiteration(cluster.centroid)
+                newcentroids.append(cluster.centroid)
 
         #readd all the instances too the clusters with their new centroids
         for instance in instances:
@@ -228,6 +271,9 @@ def main():
         for cluster in clusters:
             print(cluster)
 
+    #####after we have clusters add files to their own documents
+    path = makenewclusterfolder(seed,k)
+    writeclusterdoc(clusters,path)
 
 
 
