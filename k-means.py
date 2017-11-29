@@ -2,6 +2,7 @@ from parse import *
 import random
 import sys
 import os
+import math
 
 
 #cluster class where we assign instances to clusters, and start new iterations...not completely sure this will necessery but might make it easier
@@ -103,10 +104,27 @@ def genjaccard(I1, I2):
     return distance
 
 
+def cosine(inst1,inst2):
+
+    vector1 = inst1.words
+    vector2 = inst2.words
+
+    numerator = 0
+    d1 = 0
+    d2 = 0
+    for i in range (len(vector1)):
+        numerator += (vector1[i]*vector2[i])
+        d1 += math.sqrt((vector1[i]*vector1[i]))
+        d2 += math.sqrt((vector2[i]*vector2[i]))
+
+    denom = d1 *d2
+
+    return (1 - (numerator/denom))
+
 
 
 #assigns an instance a cluster based on the smallest distance
-def assigncluster(instance,centroids,clusters):
+def assigncluster(instance,centroids,clusters,format):
 
 
 
@@ -114,7 +132,10 @@ def assigncluster(instance,centroids,clusters):
     #all distances to each centroid
     for center in centroids:
 
-        distance = genjaccard(center,instance)
+        if format == "j":
+            distance = genjaccard(center,instance)
+        else:
+            distance = cosine(center,instance)
         possible.append([center,distance])
 
     #adding the instance to cluster with smallest distance
@@ -127,24 +148,39 @@ def assigncluster(instance,centroids,clusters):
 
 
 #reassigns centroid by recalculating mean
-def recalcmean(cluster):
+def recalcmean(cluster, format):
 
     #new centroid is a dictonary of words with means as values
-    newcentroid = {}
+    if format == 'j':
+        newcentroid = {}
+        #adding all words in the cluster to new centroid
+        for inst in cluster.instances:
+            for word, num in inst.words.items():
+                if word not in newcentroid.keys():
+                    newcentroid[word] = num
+                else:
+                    newcentroid[word] =+ num
+        #dividing all values by number of instances
+        for word in newcentroid.keys():
+            newcentroid[word] = newcentroid[word]/len(cluster.instances)
 
-    #adding all words in the cluster to new centroid
-    for inst in cluster.instances:
-        for word, num in inst.words.items():
-            if word not in newcentroid.keys():
-                newcentroid[word] = num
-            else:
-                newcentroid[word] =+ num
+        new = instance('mean centroid ' + str(cluster.clustnum), newcentroid,True)
 
-    #dividing all values by number of instances
-    for word in newcentroid.keys():
-        newcentroid[word] = newcentroid[word]/len(cluster.instances)
+    else:
 
-    new = instance('mean centroid ' + str(cluster.clustnum), newcentroid,True)
+        meanvector = [0 for _ in range(len(cluster.instances[0].words))]
+
+        for i in range(len(meanvector)):
+            for inst in cluster.instances:
+                words = inst.words
+                meanvector[i] += words[i]
+
+        for i in range (len(meanvector)):
+            meanvector[i] = meanvector[i]/len(cluster.instances)
+
+        new = instance('mean centroid ' + str(cluster.clustnum), meanvector,True)
+
+        print(new)
 
     return new
 
@@ -203,15 +239,11 @@ def writeclusterdoc(clusters, folderpath):
         file = open(filename, 'w')
         file.write("cluster number: " + str(clustnum) + "\n\n\nFiles in cluster: \n\n\n")
         for instance in clusters[i].instances:
-            file_to_write = 'small_emails/'+ str(instance.name)
+            file_to_write = 'fake_data/'+ str(instance.name)
             towrite = open(file_to_write)
             string = towrite.read()
             file.write(string)
             file.write("\n\n\n\n")
-
-
-
-
 
 
 def main():
@@ -219,8 +251,14 @@ def main():
     #parsing data
     seed = sys.argv[1]
     k = int(sys.argv[2])
+    format = sys.argv[3]
     parser = parse()
-    instances = parser.read()
+    instances = parser.read(format)
+
+    # if we our using sparse tfidf vectors then we gotta do a extra step
+    if format == 'tfidf':
+        instances = parser.all_tfidf(instances)
+
 
 
     ##############initial run #####################
@@ -234,7 +272,7 @@ def main():
 
     # assigns each instance to a cluster
     for instance in instances:
-        assigncluster(instance,oldcentroids,clusters)
+        assigncluster(instance,oldcentroids,clusters,format)
 
     newcentroids = []
 
@@ -246,7 +284,7 @@ def main():
 
     ###################all runs after but before stabilized##########################
     #while we haven't stabelized keep running
-    while (isStable(newcentroids,oldcentroids,clusters[0].iteration) != True and clusters[0].iteration < 50):
+    while clusters[0].iteration < 20:
         print('\n',clusters[0].iteration,'\n')
         oldcentroids = []
         newcentroids=[]
@@ -256,7 +294,7 @@ def main():
             #weeding out the case where the centroid is the only thing in the cluster
             if len(cluster.instances) != 0 :
                 oldcentroids.append(cluster.centroid)
-                new = recalcmean(cluster)
+                new = recalcmean(cluster,format)
                 newcentroids.append(new)
                 cluster.newiteration(new)
             # if the centroid is the only thing in the cluster, then keep that cluster and change the others
@@ -266,7 +304,7 @@ def main():
 
         #readd all the instances too the clusters with their new centroids
         for instance in instances:
-            assigncluster(instance,newcentroids,clusters)
+            assigncluster(instance,newcentroids,clusters,format)
 
         for cluster in clusters:
             print(cluster)
