@@ -1,0 +1,1 @@
+ - These recipients of your message have been processed by the mail server: blackstar985@alice.it; Failed; 5.2.2 (mailbox full) Remote MTA cpms-2c3.cp.alice.it: SMTP diagnostic: 552 RCPT TO: Mailbox disk quota exceeded 

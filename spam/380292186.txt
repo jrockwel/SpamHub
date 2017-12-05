@@ -1,0 +1,1 @@
+The original message was received at Thu, 20 Jun 2013 16:16:07 +0200 (MEST) from mail.fidufosyga.com.co [200.58.211.183] ----- The following addresses had permanent fatal errors ----- ----- Transcript of session follows ----- ... Deferred: Connection reset by mail.regcal.it. Message could not be delivered for 4 days Message will be deleted from queue 

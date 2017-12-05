@@ -1,0 +1,1 @@
+ Digital Ocean Your new Droplet is created! (cara) - DigitalOcean Thank for using Digital Ocean. Your Droplet ip address is: 69.55.54.134 The root password has been set to: nqnJdsmo Sincerely, The Digital Ocean Team 

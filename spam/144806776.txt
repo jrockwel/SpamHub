@@ -1,0 +1,1 @@
+This email confirms that you can receive email from salesforce.com IP address 182.50.78.79. Salesforce.com sends email from several different IP addresses. This email only confirms one IP address. You should receive separate emails confirming the other IP addresses. Regards, Salesforce.com 
