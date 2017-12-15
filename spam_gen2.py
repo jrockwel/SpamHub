@@ -22,17 +22,16 @@ net = tflearn.fully_connected(net, y.shape[1], activation='softmax')
 net = tflearn.regression(net, optimizer='adam',
  learning_rate=0.005, loss ='categorical_crossentropy')
 model = tflearn.DNN(net, checkpoint_path = 'charmodel/model.tfl.ckpt')
-# model.fit(X, y, snapshot_epoch=True,
-# snapshot_step=5000, n_epoch=20, batch_size = 128)
-# model.save(filename)
+model.fit(X, y, snapshot_epoch=True, snapshot_step=5000, n_epoch=40, batch_size = 200)
+model.save(filename)
 model.load(filename)
-for _ in range(5):
- p = train[np.random.randint(0,len(train)-1)]
- print("Seed:")
- print("\"",''.join([intchar[value] for value in p]), "\"")
- print("/////////")
- for _ in range(100):
-    sys.stdout.write((intchar[np.argmax(model.predict((np.reshape(p, (1, len(p), 1))/float(len(chars)))))]))
- p.append(np.argmax(model.predict((np.reshape(p, (1, len(p), 1))/float(len(chars))))))
- p = p[1:len(p)]
- print("\n============================\n")
+#for _ in range(5):
+#    p = train[np.random.randint(0,len(train)-1)]
+#    print("Seed:")
+#    print("\"",''.join([intchar[value] for value in p]), "\"")
+#    print("/////////")
+#    for _ in range(100):
+#        sys.stdout.write((intchar[np.argmax(model.predict((np.reshape(p, (1, len(p), 1))/float(len(chars)))))]))
+#    p.append(np.argmax(model.predict((np.reshape(p, (1, len(p), 1))/float(len(chars))))))
+#    p = p[1:len(p)]
+#    print("\n============================\n")

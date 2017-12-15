@@ -1,0 +1,3 @@
+#!/bin/sh
+
+for f in gen_data/poems/*; do python3 textgenAa.py "$f"; done

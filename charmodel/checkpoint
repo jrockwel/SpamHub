@@ -1,2 +1,2 @@
-model_checkpoint_path: "/Users/jcj1108/Desktop/csci/cs374/final_project/SpamHub/charmodel/model.tfl.ckpt-12080"
-all_model_checkpoint_paths: "/Users/jcj1108/Desktop/csci/cs374/final_project/SpamHub/charmodel/model.tfl.ckpt-12080"
+model_checkpoint_path: "/Users/jcj1108/Desktop/csci/cs374/final_project/SpamHub/charmodel/model.tfl.ckpt-1320"
+all_model_checkpoint_paths: "/Users/jcj1108/Desktop/csci/cs374/final_project/SpamHub/charmodel/model.tfl.ckpt-1320"

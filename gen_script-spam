@@ -1,0 +1,3 @@
+#!/bin/sh
+
+for f in gen_data/spam/*; do python3 textgenA.py "$f"; done

@@ -17,3 +17,8 @@ questions:
     -type of RNN that factors in order dependance of sequences
         [machinelearningmastery]
 
+//
+increased batch size + smaller training set -> higher loss values
+	—but runs faster
+
+larger training set w/ large batch size -> lower loss values
