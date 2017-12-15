@@ -1,0 +1,19 @@
+questions:
+—what is an epoch?
+	—num iterations = num training samples = 1 epoch
+	—900s/epoch
+—what is the loss metric being calculated
+	—where is it coming from 
+	—how is it being calculated
+—what is batch size
+//
+-seq len=length of sequence to learn
+    -parameter to play w/, does changing seq len impact quality of model?
+-why use softmax as output eq?
+-what is output in the output file?
+//
+-lstm [Long Short Term Memory]
+    -num_units [number of units for layer]
+    -type of RNN that factors in order dependance of sequences
+        [machinelearningmastery]
+

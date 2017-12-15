@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/jcj1108/Desktop/csci/cs374/final_project/SpamHub/spam_out.txt"
+all_model_checkpoint_paths: "/Users/jcj1108/Desktop/csci/cs374/final_project/SpamHub/spam_out.txt"
